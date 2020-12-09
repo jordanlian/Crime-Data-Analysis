@@ -1,0 +1,281 @@
+---
+title: "IE 6200 Project - Section 9 - Group 1"
+author: "Noah Klur, Jordan Lian"
+date: "09-Dec-2020"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data Collection
+
+We chose to work with the crimedata library in R. To conduct our analysis, we used dplyr, ggplot2, lubridate, tidyr, and fitdistrplus.
+
+```{r, , message=FALSE, warning=FALSE}
+library(crimedata)
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(tidyr)
+library(fitdistrplus)
+```
+
+```{r, origin_crime, include=FALSE}
+origin_crime <- get_crime_data()
+```
+
+``` {r ,, warning = FALSE, message = FALSE}
+str(origin_crime)
+origin_crime
+```
+
+## Data Visualization
+
+We first looked at crimes per city before picking a few cities to look at. 
+
+We created a table showing the total crimes per city in the year 2019. 
+
+```{r crime_data, city_crime, message=FALSE, echo=FALSE, warning=FALSE}
+crime_data <- origin_crime
+city_count <- table(crime_data$city_name)
+city_count
+barplot(city_count, main="Total Number of Crimes per City in 2019",
+        xlab="City",
+        ylab="Frequency")
+```
+
+We then decided to look at crimes per month. We had to filter out the month only from each crime. We modified the date_single variable to help us do that. Then we created a separate data frame from these results.
+
+```{r, crime_data, date_freq, message=FALSE, echo=FALSE, warning=FALSE}
+crime_data$date_single <- format(as.POSIXct(crime_data$date_single, format='%Y/%m/%d %H:%M:%S'),format='%m')
+
+date_freq <- as.data.frame(table(crime_data$date_single))
+date_freq$avg <- as.numeric(as.character(date_freq$Freq)) / 15
+colnames(date_freq) = c("Month", "Total_Freq", "Avg_Freq")
+date_freq
+
+barplot(date_freq$Avg_Freq, names.arg=date_freq$Month, main="Crime Frequency per Month",
+        xlab="Month",
+        ylab="Average Frequency per City")
+```
+
+From these results, we decided to look at New York, Chicago, Los Angeles, and Austin.
+
+
+### New York
+```{r, , message=FALSE, echo=FALSE, warning=FALSE}
+# New York Crime Data set, filtered from crime_data
+NY <- crime_data[crime_data$city_name == "New York",]
+NY
+
+  #group crimes in NY by month
+NY_date_freq <- as.data.frame(table(NY$date_single))
+colnames(NY_date_freq) = c("Month", "Month_Freq")
+NY_date_freq
+
+  #group total number of crimes in NY by offense code and create bar plot
+NY_crime <- table(NY$offense_code)
+
+barplot(NY_crime, main="New York Total Crime",
+        xlab="Offense Code",
+        ylab="Frequency")
+
+  #create scatterplot of crimes in NY by month
+legend_key <- theme(plot.title = element_text(family = "Helvetica", face = "bold", size = (15), hjust=0.5))
+NY_scatter <- ggplot(NY_date_freq) +
+  geom_point(mapping = aes(x = Month, y = Month_Freq))
+print(NY_scatter + legend_key + labs(y="Crimes Each Month", title="New York Monthly Crimes"))
+```
+
+### Chicago
+```{r, , message=FALSE, echo=FALSE, warning=FALSE}
+# Chicago Crime Data set, filtered from crime_data
+Chi <- crime_data[crime_data$city_name == "Chicago",]
+Chi
+
+  #group crimes in Chicago by month
+Chi_date_freq <- as.data.frame(table(Chi$date_single))
+colnames(Chi_date_freq) = c("Month", "Month_Freq")
+Chi_date_freq
+
+  #group total number of crimes in Chicago by offense code and create bar plot
+Chi_crime <- table(Chi$offense_code)
+barplot(Chi_crime, main="Chicago Total Crime",
+        xlab="Offense Code",
+        ylab="Frequency")
+
+  #create scatterplot of crimes in Chicago by month
+Chi_scatter <- ggplot(Chi_date_freq) +
+  geom_point(mapping = aes(x = Month, y = Month_Freq))
+print(Chi_scatter + legend_key + labs(y="Crimes each Month", title="Chicago Monthly Crimes"))
+```
+
+### Los Angeles
+```{r, , message=FALSE, echo=FALSE, warning=FALSE}
+# LA Crime Data set, filtered from crime_data
+LA <- crime_data[crime_data$city_name == "Los Angeles",]
+LA
+
+  #group crimes in LA by month
+LA_date_freq <- as.data.frame(table(LA$date_single))
+colnames(LA_date_freq) = c("Month", "Month_Freq")
+LA_date_freq
+
+  #group total number of crimes in LA by offense code and create bar plot
+LA_crime <- table(LA$offense_code)
+barplot(LA_crime, main="Los Angeles Total Crime",
+        xlab="Offense Code",
+        ylab="Frequency")
+
+  #create scatterplot of crimes in LA by month
+LA_scatter <- ggplot(LA_date_freq) +
+  geom_point(mapping = aes(x = Month, y = Month_Freq))
+print(LA_scatter + legend_key + labs(y="Crimes each Month", title="Los Angeles Monthly Crime"))
+```
+
+### Austin
+```{r, , message=FALSE, echo=FALSE, warning=FALSE}
+# Austin Crime Data set, filtered from crime_data
+Aus <- crime_data[crime_data$city_name == "Austin",]
+Aus
+
+  #group crimes in Austin by month
+Aus_date_freq <- as.data.frame(table(Aus$date_single))
+colnames(Aus_date_freq) = c("Month", "Month_Freq")
+Aus_date_freq
+
+  #group total number of crimes in Austin by offense code and create bar plot
+Aus_crime <- table(Aus$offense_code)
+barplot(Aus_crime, main="Austin Total Crime",
+        xlab="Offense Code",
+        ylab="Frequency")
+
+  #create scatterplot of crimes in Austin by month
+Aus_Scatter <- ggplot(Aus_date_freq) +
+  geom_point(mapping = aes(x = Month, y = Month_Freq))
+print(Aus_Scatter + legend_key + labs(y="Crimes Each Month", title="Austin Monthly Crimes"))
+
+a <- data.frame(city_count)
+colnames(a) = c("City", "Yearly_Crime")
+a
+Avg_Salary <- c(67462, 65883, 55198, 29481, 59255, 43573, 58385, 32131, 54700, 54505, 60762, 104552, 85562, 41107, 41625)
+Population <- c(978908, 692600, 2693976, 670031, 909585, 152960, 3979576, 770517, 518012, 692587, 8336817, 881549, 753675, 300576, 548073)
+data <- cbind(a,Avg_Salary)
+Cor_data <- cbind(data,Population)
+Cor_data
+cor(Cor_data$`Yearly_Crime`, Cor_data$Avg_Salary)
+cor_crime_salary <- ggplot(Cor_data) +
+  geom_point(mapping = aes(x = Avg_Salary, y = Yearly_Crime))
+print(cor_crime_salary + legend_key + labs(x="Average Yearly Salary", y="Yearly Crime", title="Correlation Plot: Avg. Yearly Salary vs Yearly Crime Rates"))
+ggplot(data = Cor_data, aes(x=Cor_data$Avg_Salary, y=Cor_data$Yearly_Crime))+
+  geom_point(aes(size=City, color=City))+
+  labs(x="Average Salary", y="Yearly Crime")  
+#correlation for yearly crime and population
+cor(Cor_data$`Yearly_Crime`, Cor_data$Population)
+cor_crime_population <- ggplot(Cor_data) +
+  geom_point(mapping = aes(x = Population, y = Yearly_Crime))
+print(cor_crime_population + legend_key + labs(x="Population", y="Yearly Crime", title="Correlation Plot: Avg. Population vs Yearly Crime Rates"))
+ggplot(data = Cor_data, aes(x=Cor_data$Population, y=Cor_data$Yearly_Crime))+
+  geom_point(aes(size=City, color=City))+
+  labs(x="Population", y="Yearly Crime")
+```
+
+After getting visuals from all of the cities, we compared monthly crime from each of the 4 cities. We created a new data frame to plot it on the same graph.
+
+### Grouped Bar Plot
+```{r, city_crime, city_long, city_bar, messages=FALSE, echo=FALSE, warning=FALSE}
+# Grouped Bar Plot
+month_list <- c(1:12)
+as.data.frame(month_list)
+city_crime <- bind_cols(month_list, NY_date_freq$Month_Freq, Chi_date_freq$Month_Freq, LA_date_freq$Month_Freq, Aus_date_freq$Month_Freq)
+colnames(city_crime) = c("Month", "NY_Month_Freq", "Chi_Month_Freq", "LA_Month_Freq", "Aus_Month_Freq")
+city_crime <- as.data.frame(city_crime)
+city_crime
+
+# Modify Dataframe
+city_long <- gather(city_crime, variable, value, -Month)
+city_long
+
+# Bar Plot
+city_bar <- ggplot(city_long, aes(Month, value))
+month_crimes <- city_bar + geom_bar(stat = "identity", aes(fill =  variable), position = "dodge") +
+  xlab("Months") + ylab("Frequency") +
+  ggtitle("Monthly Crimes by City")
+print(month_crimes + legend_key + scale_fill_discrete(name = "City", labels = c("Austin", "Chicago", "Los Angeles", "New York")))
+```
+
+## Statistical Analysis
+We conducted 3 tests.
+ 
+1. Hypothesis Test: For our hypothesis test, we chose to do two tests of unequal variances - looking at New York and then Austin. For the first hypothesis test of unequal variances, we look at New York as the sample from the population being the United States.
+
+- Step 1: Hypothesis:
+- Null Hypothesis: $H_{0}$: $\sigma^2$ $\le$ $\sigma_{0}^2$
+- Alternate Hypothesis: $H_{1}$: $\sigma^2$ > $\sigma_{0}^2$
+- Step 2: Test Statistic
+- $\chi^2_{calc} = \frac{(n-1)s^2}{\sigma_{0}^2}$
+- For New York: n = 4720, $s^2 = 5436.424$, $\sigma_{0}^2 = 73.02411$
+- For Austin: n = 878, $s^2 = 120.3333$, $\sigma_{0}^2 = 73.02411$
+- Step 3: Rejection Region
+- Step 4: Decision
+
+2. Confidence Interval for New York
+- $\alpha = 0.05$
+- $\frac{(n-1)S^2}{\chi^2_{\alpha/2}} < \sigma^2 < \frac{(n-1)S^2}{\chi^2_{1-\alpha/2}}$
+
+3. Probability Sampling
+- $\alpha = 0.05$
+- $Z = \frac{\overline{X} - \mu}{\frac{\sigma}{\sqrt{n}}}$
+
+```{r, , echo=FALSE}
+
+```
+
+## Advanced Analytics
+Below are some of the advanced analytics we chose to run for our project.
+
+We started by doing descriptive statistics on the data, and the results are as follows:
+
+```{r, , message=FALSE, echo=FALSE, warning=FALSE}
+#Regression for advanced analytics
+descdist(date_freq$Avg_Freq)
+```
+
+We then decided to fit the normal and lognormal distributions to the data and analyzing which seems to be better, as show 
+below:
+
+```{r, , message=FALSE, echo=FALSE, warning=FALSE}
+fit_n <- fitdist(date_freq$Avg_Freq, "norm")
+summary(fit_n)
+fit_ln <- fitdist(date_freq$Avg_Freq, "lnorm")
+summary(fit_ln)
+
+gofstat((list(fit_n,fit_ln)))
+```
+
+We then ran statistical analysis such as a Q-Q plot, a P-P plot, empirical and theoretical CDFs, and histogram and theoretical densities, as shown below:
+
+```{r, , message=FALSE, echo=FALSE, warning=FALSE}
+par(mfrow=c(2,2))
+plot.legend <- c("normal")
+denscomp(list(fit_n), legendtext = plot.legend, xlab = "Average Crime", xlegend = 'topleft')
+cdfcomp(list(fit_n), legendtext = plot.legend, xlab = "Average Crime",)
+qqcomp(list(fit_n), legendtext = plot.legend, xlab = "Average Crime",)
+ppcomp(list(fit_n), legendtext = plot.legend, xlab = "Average Crime",)
+```
+
+## Conclusion
+We found this project very interesting and generated several conclusions. Firstly, we
+found that New York, Chicago, and Los Angeles have significantly more yearly crimes than
+the other 12 cities. This led us to analyze them more and try to find correlations in these
+numbers. We thought of two possibilities and wanted to analyze yearly crime based on
+average income and population size. After manipulating the data we found extremely weak
+correlation between yearly crime and average yearly income. We then looked at yearly
+crime and population size and found a very strong positive correlation. So, we can
+confidently conclude that yearly crime rates are strongly correlated to population size for
+cities.
